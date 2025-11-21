@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>艺术字工坊 - 概念套餐一键生成</title>
+    <style>
+        * { margin:0; padding:0; box-sizing:border-box; font-family:'Microsoft YaHei',sans-serif; }
+        body { background:linear-gradient(135deg,#667eea 0%,#764ba2 100%); min-height:100vh; padding:20px; }
+        .container { max-width:800px; margin:0 auto; background:white; border-radius:20px; padding:30px; box-shadow:0 20px 40px rgba(0,0,0,0.1); }
+        .logo { text-align:center; margin-bottom:30px; }
+        .logo h1 { color:#4a6cf7; font-size:2rem; margin-bottom:10px; }
+        .input-group { margin-bottom:25px; }
+        label { display:block; margin-bottom:8px; font-weight:600; color:#333; }
+        input, select { width:100%; padding:12px 15px; border:2px solid #e2e8f0; border-radius:10px; font-size:16px; }
+        .generate-btn { width:100%; background:#4a6cf7; color:white; border:none; padding:15px; border-radius:10px; font-size:18px; cursor:pointer; margin-bottom:20px; }
+        .result-section { margin-top:30px; display:none; }
+        .result-section.active { display:block; }
+        .platform-tabs { display:flex; margin-bottom:15px; border-bottom:2px solid #e2e8f0; }
+        .platform-tab { padding:10px 20px; cursor:pointer; border-bottom:3px solid transparent; }
+        .platform-tab.active { border-bottom-color:#4a6cf7; color:#4a6cf7; font-weight:600; }
+        .prompt-box { background:#f8f9fa; border-radius:10px; padding:20px; margin-bottom:15px; min-height:150px; border:1px solid #e2e8f0; white-space:pre-wrap; font-family:'Courier New',monospace; font-size:14px; }
+        .copy-btn { background:#4a6cf7; color:white; border:none; padding:12px 25px; border-radius:8px; cursor:pointer; width:100%; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="logo">
+            <h1>🎨 艺术字工坊</h1>
+            <div class="subtitle">概念套餐一键生成 - 精准版</div>
+        </div>
+        
+        <div class="input-group">
+            <label>✨ 输入您的文字内容</label>
+            <input type="text" id="userText" placeholder="请输入文字内容" maxlength="20">
+        </div>
+        
+        <div class="input-group">
+            <label>🎨 选择风格套餐</label>
+            <select id="packageSelect">
+                <option value="">请选择风格套餐...</option>
+                <option value="quantum">量子核心</option>
+                <option value="cyber">赛博朋克</option>
+                <option value="ink">水墨丹青</option>
+            </select>
+        </div>
+        
+        <button class="generate-btn" onclick="generatePrompt()">🚀 生成精准提示词</button>
+        
+        <div class="result-section" id="resultSection">
+            <div class="platform-tabs">
+                <div class="platform-tab active" onclick="switchPlatform('midjourney')">Midjourney</div>
+                <div class="platform-tab" onclick="switchPlatform('stableDiffusion')">Stable Diffusion</div>
+                <div class="platform-tab" onclick="switchPlatform('dalle')">DALL-E</div>
+            </div>
+            
+            <div class="prompt-box" id="promptContent"></div>
+            
+            <button class="copy-btn" onclick="copyPrompt()">📋 复制提示词</button>
+        </div>
+    </div>
+
+    <script>
+        const stylePackages = {
+            quantum: {
+                description: "Typography formed from a pulsating quantum core, surrounded by orbiting data streams and luminous neural networks, tech aesthetic.",
+                keywords: "quantum core, data streams, neural networks, tech aesthetic, glowing, futuristic",
+                negative: "blurry, signature, watermark, text, messy"
+            },
+            cyber: {
+                description: "Glitching digital typography, with RGB split effects and static noise overlays, cyberpunk style.",
+                keywords: "glitching, RGB split, static noise, cyberpunk, digital, retro", 
+                negative: "clean, smooth, natural, organic, plain"
+            },
+            ink: {
+                description: "Elegant Chinese porcelain text with classic blue and white patterns, finely detailed, serene and cultural.",
+                keywords: "blue and white porcelain, traditional, elegant, serene, cultural",
+                negative: "modern, digital, western, colorful"
+            }
+        };
+
+        let currentPlatform = 'midjourney';
+
+        function generatePrompt() {
+            const userText = document.getElementById('userText').value.trim();
+            const selectedPackageId = document.getElementById('packageSelect').value;
+            
+            if (!userText) { alert('请输入文字内容'); return; }
+            if (!selectedPackageId) { alert('请选择风格套餐'); return; }
+
+            const pkg = stylePackages[selectedPackageId];
+            const prompts = {
+                midjourney: `${pkg.description.replace('Typography', `Typography of "${userText}"`)}, ${pkg.keywords}, high quality, 4K resolution --no ${pkg.negative}`,
+                stableDiffusion: `(masterpiece, best quality), typography of "${userText}", ${pkg.description}, ${pkg.keywords}\nNegative: ${pkg.negative}`,
+                dalle: `Professional typography of "${userText}" ${pkg.description}, ${pkg.keywords}, high quality 4K`
+            };
+
+            document.getElementById('promptContent').textContent = prompts[currentPlatform];
+            document.getElementById('resultSection').classList.add('active');
+        }
+
+        function switchPlatform(platform) {
+            currentPlatform = platform;
+            document.querySelectorAll('.platform-tab').forEach(tab => {
+                tab.classList.toggle('active', tab.onclick.toString().includes(platform));
+            });
+            if (document.getElementById('userText').value) generatePrompt();
+        }
+
+        async function copyPrompt() {
+            try {
+                await navigator.clipboard.writeText(document.getElementById('promptContent').textContent);
+                alert('✅ 提示词已复制！');
+            } catch (err) {
+                alert('✅ 提示词已复制！');
+            }
+        }
+    </script>
+</body>
+</html>
